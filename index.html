@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YouTube AdSense — Painel de Projeção</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0d1117; --bg2: #161b22; --bg3: #21262d;
+    --border: rgba(48,54,61,0.9); --red: #e53e3e;
+    --green: #1D9E75; --green-dim: rgba(29,158,117,0.13);
+    --amber: #d4a139; --amber-dim: rgba(212,161,57,0.1);
+    --blue: #58a6ff; --blue-dim: rgba(88,166,255,0.1);
+    --text: #e6edf3; --text2: #8b949e; --text3: #484f58;
+    --radius: 10px;
+  }
+  body { background: var(--bg); color: var(--text); font-family: 'Space Grotesk', sans-serif; font-size: 13px; min-height: 100vh; padding: 20px 24px 40px; max-width: 960px; margin: 0 auto; }
+
+  /* ── Header ── */
+  header { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+  .header-left h1 { font-size: 16px; font-weight: 700; letter-spacing: -.3px; }
+  .header-left p { font-size: 11px; color: var(--text2); margin-top: 3px; }
+  .channel-name-wrap { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+  .channel-name-wrap label { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: .4px; }
+  #channelName { background: var(--bg2); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-family: 'Space Grotesk', sans-serif; font-size: 13px; font-weight: 600; padding: 5px 10px; width: 180px; outline: none; }
+  #channelName:focus { border-color: var(--green); }
+
+  /* ── Tabs ── */
+  .tabs { display: flex; gap: 2px; margin-bottom: 20px; background: var(--bg2); border-radius: 8px; padding: 4px; border: 1px solid var(--border); }
+  .tab { flex: 1; padding: 7px 10px; border-radius: 6px; border: none; background: transparent; color: var(--text2); font-family: 'Space Grotesk', sans-serif; font-size: 12px; font-weight: 500; cursor: pointer; transition: all .15s; }
+  .tab.active { background: var(--bg3); color: var(--text); }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* ── Prompt box ── */
+  .prompt-box { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; margin-bottom: 14px; }
+  .prompt-box h3 { font-size: 12px; font-weight: 700; color: var(--green); text-transform: uppercase; letter-spacing: .4px; margin-bottom: 10px; }
+  .prompt-box p { font-size: 11px; color: var(--text2); line-height: 1.7; margin-bottom: 10px; }
+  .prompt-text { background: var(--bg3); border: 1px solid var(--border); border-radius: 7px; padding: 13px 15px; font-size: 11px; color: var(--text); line-height: 1.75; white-space: pre-wrap; font-family: 'Space Grotesk', sans-serif; position: relative; }
+  .copy-btn { position: absolute; top: 10px; right: 10px; background: var(--bg2); border: 1px solid var(--border); border-radius: 5px; color: var(--text2); font-size: 10px; font-weight: 600; padding: 4px 9px; cursor: pointer; font-family: 'Space Grotesk', sans-serif; transition: all .15s; }
+  .copy-btn:hover { border-color: var(--green); color: var(--green); }
+  .copy-btn.copied { border-color: var(--green); color: var(--green); }
+  .step { display: flex; gap: 10px; margin-bottom: 10px; align-items: flex-start; }
+  .step-num { min-width: 22px; height: 22px; background: var(--green-dim); border: 1px solid var(--green); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: var(--green); flex-shrink: 0; margin-top: 1px; }
+  .step-text { font-size: 11px; color: var(--text2); line-height: 1.6; }
+  .step-text strong { color: var(--text); }
+  .output-table { width: 100%; border-collapse: collapse; font-size: 11px; margin-top: 10px; }
+  .output-table th { background: var(--bg3); color: var(--text2); padding: 7px 10px; text-align: left; font-weight: 600; font-size: 10px; text-transform: uppercase; letter-spacing: .3px; }
+  .output-table td { padding: 7px 10px; border-top: 1px solid var(--border); color: var(--text2); }
+  .output-table td strong { color: var(--green); }
+  .highlight-row td { background: var(--green-dim); }
+
+  /* ── Entradas principais ── */
+  .primary-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 12px; }
+  .pinput { background: var(--bg2); border: 1px solid var(--green); border-radius: var(--radius); padding: 13px 14px; }
+  .pinput label { display: block; font-size: 10px; color: var(--green); font-weight: 700; letter-spacing: .4px; text-transform: uppercase; margin-bottom: 6px; }
+  .pinput input[type=number] { width: 100%; background: transparent; border: none; border-bottom: 1px solid var(--border); color: var(--text); font-size: 22px; font-weight: 700; font-family: 'Space Grotesk', sans-serif; padding: 2px 0 5px; outline: none; -moz-appearance: textfield; }
+  .pinput input::-webkit-outer-spin-button, .pinput input::-webkit-inner-spin-button { -webkit-appearance: none; }
+  .pinput .unit { font-size: 10px; color: var(--text3); margin-top: 5px; }
+
+  /* ── Seção secundária ── */
+  .toggle-row { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--text2); cursor: pointer; margin-bottom: 10px; user-select: none; }
+  .toggle-row:hover { color: var(--text); }
+  .arrow { font-size: 9px; transition: transform .2s; }
+  .arrow.open { transform: rotate(90deg); }
+  .sec-inputs { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 14px; margin-bottom: 12px; display: none; }
+  .ctrl { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .ctrl:last-child { margin-bottom: 0; }
+  .clabel { font-size: 11px; color: var(--text2); min-width: 200px; }
+  .cval { font-size: 11px; font-weight: 600; color: var(--text); min-width: 48px; text-align: right; }
+  input[type=range] { flex: 1; accent-color: var(--green); height: 3px; cursor: pointer; }
+
+  /* ── Cards ── */
+  .cards { display: grid; grid-template-columns: repeat(4,1fr); gap: 9px; margin-bottom: 14px; }
+  .card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 13px; }
+  .card.hi { border-color: var(--green); background: var(--green-dim); }
+  .card .cl { font-size: 10px; color: var(--text2); margin-bottom: 4px; text-transform: uppercase; letter-spacing: .3px; }
+  .card .cv { font-size: 18px; font-weight: 700; line-height: 1.15; }
+  .card.hi .cv { color: var(--green); }
+  .card .cs { font-size: 10px; color: var(--text3); margin-top: 4px; }
+
+  /* ── Charts ── */
+  .charts { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .chart-box { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 13px 14px; }
+  .chart-box h3 { font-size: 10px; color: var(--text2); text-transform: uppercase; letter-spacing: .4px; margin-bottom: 10px; font-weight: 600; }
+  .chart-wrap { position: relative; width: 100%; height: 160px; }
+
+  /* ── Footer ── */
+  .footer { margin-top: 14px; background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 14px; font-size: 10px; color: var(--text3); line-height: 1.7; }
+  .footer strong { color: var(--text2); }
+  .tag { display: inline-block; background: var(--green-dim); border-radius: 4px; padding: 1px 6px; font-size: 10px; font-weight: 600; color: var(--green); margin: 0 2px; }
+  .pulse { width: 7px; height: 7px; border-radius: 50%; background: var(--green); display: inline-block; animation: pulse 2s infinite; margin-right: 4px; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+  .warn { background: rgba(229,62,62,0.08); border: 1px solid rgba(229,62,62,0.25); border-radius: 7px; padding: 8px 12px; font-size: 11px; color: #fc8181; margin-top: 10px; line-height: 1.6; }
+
+  @media (max-width: 620px) {
+    body { padding: 14px; }
+    .primary-grid { grid-template-columns: 1fr; }
+    .cards { grid-template-columns: repeat(2,1fr); }
+    .charts { grid-template-columns: 1fr; }
+    .channel-name-wrap { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <h1>📊 YouTube AdSense — Painel de Projeção</h1>
+    <p>Modelo conservador · baseado em produção · sem viralização</p>
+  </div>
+  <div class="channel-name-wrap">
+    <label>Canal</label>
+    <input type="text" id="channelName" placeholder="Nome do canal" value="">
+  </div>
+</header>
+
+<!-- Tabs -->
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('painel')">📈 Painel</button>
+  <button class="tab" onclick="switchTab('instrucoes')">📋 Como usar</button>
+</div>
+
+<!-- TAB: PAINEL -->
+<div class="tab-content active" id="tab-painel">
+
+  <div class="primary-grid">
+    <div class="pinput">
+      <label>Views/semana por vídeo</label>
+      <input type="number" id="svpv" value="440" min="10" max="5000" step="10">
+      <div class="unit">↑ Mediana (Ciclo 7 Dias) — do YouTube AI</div>
+    </div>
+    <div class="pinput">
+      <label>RPM estabilizado — USD/mil</label>
+      <input type="number" id="rpm" value="2.59" min="0.10" max="15" step="0.01">
+      <div class="unit">↑ RPM Real Estabilizado — do YouTube AI</div>
+    </div>
+    <div class="pinput">
+      <label>Câmbio USD → BRL</label>
+      <input type="number" id="fx" value="5.00" min="3" max="10" step="0.05">
+      <div class="unit">↑ Cotação atual</div>
+    </div>
+  </div>
+
+  <div class="toggle-row" onclick="toggleSec()">
+    <span class="arrow" id="arrow">▶</span>
+    Parâmetros do canal — altere só se mudar o ritmo de publicação
+  </div>
+  <div class="sec-inputs" id="sec-block">
+    <div class="ctrl">
+      <span class="clabel">Vídeos longos (+40 min) no canal hoje</span>
+      <input type="range" id="cur" min="1" max="200" value="26" step="1">
+      <span class="cval" id="cur-out">26</span>
+    </div>
+    <div class="ctrl">
+      <span class="clabel">Novos vídeos longos por mês</span>
+      <input type="range" id="nvm" min="1" max="30" value="10" step="1">
+      <span class="cval" id="nvm-out">10</span>
+    </div>
+  </div>
+
+  <div class="cards" id="cards"></div>
+
+  <div class="charts">
+    <div class="chart-box">
+      <h3>💰 Receita mensal — BRL (piso conservador)</h3>
+      <div class="chart-wrap"><canvas id="revChart"></canvas></div>
+    </div>
+    <div class="chart-box">
+      <h3>📈 Acumulado 6 meses — BRL</h3>
+      <div class="chart-wrap"><canvas id="cumChart"></canvas></div>
+    </div>
+  </div>
+
+  <div class="footer" id="footer"></div>
+</div>
+
+<!-- TAB: INSTRUÇÕES -->
+<div class="tab-content" id="tab-instrucoes">
+
+  <div class="prompt-box">
+    <h3>🤖 Passo 1 — Rode este prompt no YouTube Studio AI</h3>
+    <p>Abra o <strong>YouTube Studio</strong> do seu canal, clique no ícone de IA (Gemini) e cole o prompt abaixo. Ele vai calcular automaticamente os dois valores que você precisa para o painel.</p>
+
+    <div class="prompt-text" id="promptText">Atue como meu analista financeiro. Primeiro, utilize suas ferramentas de Analytics para extrair os dados reais de receita e views dos últimos 28 dias e a lista de vídeos de +40 min dos últimos 90 dias. Em seguida, utilize o Interpretador de Python para processar os seguintes cálculos:
+
+Protocolo de Estabilidade Rigoroso:
+
+RPM Real Diário (Fixo): Com a receita/views diários, calcule o RPM de cada dia individualmente. Ordene a lista e remova obrigatoriamente o maior e o menor valor. A média do restante é o RPM Real Estabilizado.
+
+Normalização de Ativos (Base 28d): Selecione os vídeos de +40 min (últimos 90 dias). Divida o total de views de 28 dias de cada vídeo por 4. Calcule a Mediana desta lista resultante. Este valor é a sua Média de Views (Ciclo 7 Dias).
+
+Cálculo de Projeção: [Mediana] * ([RPM Real Estabilizado] / 1000).
+
+ENTREGA: Tabela comparando Média (com ruído) vs Mediana (Previsível) e Resumo Executivo destacando em negrito o RPM Real Estabilizado e a Média de Views (Ciclo 7 Dias).
+<button class="copy-btn" onclick="copyPrompt()" id="copyBtn">Copiar</button></div>
+
+    <div class="warn">⚠️ Este prompt requer o <strong>YouTube Studio com IA (Gemini)</strong> ativado no seu canal. Se a IA não estiver disponível, você pode calcular manualmente: RPM médio dos últimos 14 dias no Analytics → Receita, e views médias por vídeo com 30+ dias de vida.</div>
+  </div>
+
+  <div class="prompt-box">
+    <h3>📥 Passo 2 — Transfira os resultados para o painel</h3>
+
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-text">O YouTube AI vai entregar uma tabela como esta. Localize os dois valores em negrito:</div>
+    </div>
+
+    <table class="output-table">
+      <thead><tr><th>Métrica</th><th>Com ruído (Média)</th><th>Previsível (Mediana)</th></tr></thead>
+      <tbody>
+        <tr><td>Views/semana por vídeo</td><td>512</td><td><strong>440</strong></td></tr>
+        <tr class="highlight-row"><td><strong>RPM Real Estabilizado</strong></td><td>—</td><td><strong>$2,59</strong></td></tr>
+        <tr class="highlight-row"><td><strong>Média de Views (Ciclo 7 Dias)</strong></td><td>—</td><td><strong>440</strong></td></tr>
+      </tbody>
+    </table>
+
+    <br>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-text">Volte para a aba <strong>Painel</strong> e insira:<br>
+        • <strong>Views/semana por vídeo</strong> → valor da coluna "Mediana" de Views (Ciclo 7 Dias)<br>
+        • <strong>RPM estabilizado</strong> → valor do RPM Real Estabilizado<br>
+        • <strong>Câmbio</strong> → cotação atual do dólar
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-text">Abra o bloco <strong>"Parâmetros do canal"</strong> e confirme o número atual de vídeos longos e seu ritmo de publicação. Esses dados só mudam se você alterar sua cadência.</div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-text"><strong>Recomendação:</strong> repita o processo a cada 2 semanas para manter as projeções calibradas com a realidade do canal.</div>
+    </div>
+  </div>
+
+  <div class="prompt-box">
+    <h3>📐 Como o modelo funciona</h3>
+    <p>Este painel usa um <strong>modelo de catálogo</strong> — cada vídeo longo publicado contribui permanentemente com sua mediana de views por semana para a receita total. O crescimento é garantido pela sua consistência de publicação, sem depender de viralização ou boost do algoritmo.</p>
+    <br>
+    <p><strong>Fórmula:</strong> (Vídeos no catálogo × Views/semana/vídeo × 4,33 semanas) × (RPM ÷ 1.000) × Câmbio = Receita mensal em BRL</p>
+    <br>
+    <p style="color:var(--text3)">Qualquer receita acima do piso projetado é bônus do algoritmo — não contabilizado aqui intencionalmente.</p>
+  </div>
+
+</div>
+
+<script>
+const MES = ['Mai','Jun','Jul','Ago','Set','Out'];
+const tc = 'rgba(139,148,158,0.7)', gc = 'rgba(48,54,61,0.5)';
+
+const mkOpt = yf => ({
+  responsive: true, maintainAspectRatio: false,
+  plugins: { legend: { display: false }, tooltip: { backgroundColor: '#21262d', titleColor: '#e6edf3', bodyColor: '#8b949e', borderColor: '#30363d', borderWidth: 1 } },
+  scales: {
+    x: { ticks: { color: tc, font: { size: 10, family: 'Space Grotesk' } }, grid: { color: gc } },
+    y: { ticks: { color: tc, font: { size: 9, family: 'Space Grotesk' }, callback: yf }, grid: { color: gc } }
+  }
+});
+
+const revChart = new Chart(document.getElementById('revChart'), {
+  type: 'bar',
+  data: { labels: MES, datasets: [{ data: [], backgroundColor: 'rgba(29,158,117,0.55)', hoverBackgroundColor: '#1D9E75', borderRadius: 4 }] },
+  options: { ...mkOpt(v => 'R$' + Math.round(v)), plugins: { tooltip: { callbacks: { label: ctx => 'R$' + Math.round(ctx.raw).toLocaleString('pt-BR') } } } }
+});
+
+const cumChart = new Chart(document.getElementById('cumChart'), {
+  type: 'line',
+  data: { labels: MES, datasets: [{ data: [], borderColor: '#d4a139', backgroundColor: 'rgba(212,161,57,0.08)', fill: true, tension: 0.4, pointRadius: 4, pointBackgroundColor: '#d4a139', borderWidth: 2 }] },
+  options: { ...mkOpt(v => 'R$' + Math.round(v)), plugins: { tooltip: { callbacks: { label: ctx => 'R$' + Math.round(ctx.raw).toLocaleString('pt-BR') } } } }
+});
+
+function switchTab(id) {
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', ['painel','instrucoes'][i] === id));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.toggle('active', c.id === 'tab-'+id));
+}
+
+function toggleSec() {
+  const b = document.getElementById('sec-block');
+  const a = document.getElementById('arrow');
+  const open = b.style.display !== 'block';
+  b.style.display = open ? 'block' : 'none';
+  a.classList.toggle('open', open);
+}
+
+function copyPrompt() {
+  const text = document.getElementById('promptText').innerText.replace('Copiar','').trim();
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('copyBtn');
+    btn.textContent = '✓ Copiado';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copiar'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+function calc() {
+  const svpv = parseFloat(document.getElementById('svpv').value) || 440;
+  const rpm  = parseFloat(document.getElementById('rpm').value) || 2.59;
+  const fx   = parseFloat(document.getElementById('fx').value) || 5.00;
+  const cur  = parseInt(document.getElementById('cur').value) || 26;
+  const nvm  = parseInt(document.getElementById('nvm').value) || 10;
+  const ch   = document.getElementById('channelName').value || 'Seu Canal';
+
+  document.getElementById('cur-out').textContent = cur;
+  document.getElementById('nvm-out').textContent = nvm;
+  document.title = ch + ' — Painel AdSense';
+
+  let vids = cur, cumR = 0, prev = null;
+  const brl = [], cum = [], growths = [];
+
+  for (let i = 0; i < 6; i++) {
+    vids += nvm;
+    const mo = vids * svpv * 4.33;
+    const b  = mo * rpm / 1000 * fx;
+    cumR += b;
+    if (prev) growths.push((mo / prev - 1) * 100);
+    brl.push(Math.round(b));
+    cum.push(Math.round(cumR));
+    prev = mo;
+  }
+
+  revChart.data.datasets[0].data = brl; revChart.update('none');
+  cumChart.data.datasets[0].data = cum; cumChart.update('none');
+
+  const pisoBRL = Math.round(cur * svpv * 4.33 * rpm / 1000 * fx);
+  const avgG    = growths.length ? growths.reduce((a,b) => a+b,0) / growths.length : 0;
+
+  document.getElementById('cards').innerHTML = [
+    { l: 'Piso atual (sem boost)',  v: 'R$' + pisoBRL.toLocaleString('pt-BR') + '/mês', s: cur + ' vídeos × ' + svpv + ' views/sem', hi: true },
+    { l: 'Receita Mai/26',          v: 'R$' + brl[0].toLocaleString('pt-BR'),            s: (cur+nvm) + ' vídeos no catálogo',          hi: false },
+    { l: 'Receita Out/26',          v: 'R$' + brl[5].toLocaleString('pt-BR'),            s: (cur+6*nvm) + ' vídeos no catálogo',        hi: false },
+    { l: 'Total 6 meses',           v: 'R$' + Math.round(cumR).toLocaleString('pt-BR'),  s: 'crescimento médio ~' + avgG.toFixed(0) + '%/mês', hi: false },
+  ].map(c => `<div class="card ${c.hi?'hi':''}"><div class="cl">${c.l}</div><div class="cv">${c.v}</div><div class="cs">${c.s}</div></div>`).join('');
+
+  document.getElementById('footer').innerHTML =
+    `<span class="pulse"></span><strong>Modelo:</strong> piso conservador do catálogo — sem viralização, sem boost de algoritmo. &nbsp;·&nbsp;
+    <span class="tag">RPM estabilizado: $${rpm.toFixed(2)}</span>
+    <span class="tag">Views/sem/vídeo: ${svpv}</span>
+    <span class="tag">Câmbio: R$${fx.toFixed(2)}</span>
+    &nbsp;·&nbsp; Atualizado em <strong>${new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'})}</strong>`;
+}
+
+calc();
+['svpv','rpm','fx','channelName'].forEach(id => document.getElementById(id).addEventListener('input', calc));
+['cur','nvm'].forEach(id => document.getElementById(id).addEventListener('input', calc));
+</script>
+</body>
+</html>
