@@ -40,9 +40,10 @@
 
   .toggle-row { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--text2); cursor: pointer; margin-bottom: 10px; user-select: none; }
   .toggle-row:hover { color: var(--text); }
-  .arrow { font-size: 9px; transition: transform .2s; }
+  .arrow { font-size: 9px; transition: transform .2s; transform: rotate(90deg); }
   .arrow.open { transform: rotate(90deg); }
-  .sec-inputs { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 14px; margin-bottom: 12px; display: none; }
+  .arrow.closed { transform: rotate(0deg); }
+  .sec-inputs { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 14px; margin-bottom: 12px; display: block; }
   .ctrl { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
   .ctrl:last-child { margin-bottom: 0; }
   .clabel { font-size: 11px; color: var(--text2); min-width: 200px; }
@@ -176,7 +177,7 @@ Normalização de Ativos (Base 28d): Selecione os vídeos de +40 min (últimos 9
 
 Cálculo de Projeção: [Mediana] * ([RPM Real Estabilizado] / 1000).
 
-ENTREGA: Tabela comparando Média (com ruído) vs Mediana (Previsível) e Resumo Executivo destacando em negrito o RPM Real Estabilizado e a Média de Views (Ciclo 7 Dias).
+ENTREGA: Tabela comparando Média (com ruído) vs Mediana (Previsível) e Resumo Executivo destacando em negrito o RPM Real Estabilizado e a Média de Views (Ciclo 7 Dias). Também informe em negrito quantos vídeos longos com mais de 40 minutos o canal tem hoje.
 <button class="copy-btn" onclick="copyPrompt()" id="copyBtn">Copiar</button></div>
     <div class="warn">⚠️ Requer o YouTube Studio com IA (Gemini) ativado no canal.</div>
   </div>
@@ -269,9 +270,9 @@ function switchTab(id) {
 function toggleSec() {
   const b = document.getElementById('sec-block');
   const a = document.getElementById('arrow');
-  const open = b.style.display !== 'block';
-  b.style.display = open ? 'block' : 'none';
-  a.classList.toggle('open', open);
+  const open = b.style.display !== 'none' && b.style.display !== '';
+  b.style.display = open ? 'none' : 'block';
+  a.classList.toggle('closed', open);
 }
 
 function copyPrompt() {
