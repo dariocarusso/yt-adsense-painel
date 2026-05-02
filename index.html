@@ -11,12 +11,13 @@
   :root {
     --bg: #0d1117; --bg2: #161b22; --bg3: #21262d;
     --border: rgba(48,54,61,0.9);
-    --green: #1D9E75; --green-dim: rgba(29,158,117,0.13);
+    --green: #1D9E75; --green-dim: rgba(29,158,117,0.13); --green-glow: rgba(29,158,117,0.22);
     --amber: #d4a139; --amber-dim: rgba(212,161,57,0.1);
     --text: #e6edf3; --text2: #8b949e; --text3: #484f58;
     --radius: 10px;
   }
-  body { background: var(--bg); color: var(--text); font-family: 'Space Grotesk', sans-serif; font-size: 13px; min-height: 100vh; padding: 20px 24px 40px; max-width: 960px; margin: 0 auto; }
+  html { overflow-x: hidden; }
+  body { background: var(--bg); color: var(--text); font-family: 'Space Grotesk', sans-serif; font-size: 13px; min-height: 100vh; padding: 20px 24px 40px; max-width: 960px; margin: 0 auto; overflow-x: hidden; }
 
   header { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
   .header-left h1 { font-size: 16px; font-weight: 700; letter-spacing: -.3px; }
@@ -31,24 +32,77 @@
   .tab-content { display: none; }
   .tab-content.active { display: block; }
 
-  .primary-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 12px; }
-  .pinput { background: var(--bg2); border: 1px solid var(--green); border-radius: var(--radius); padding: 13px 14px; }
-  .pinput label { display: block; font-size: 10px; color: var(--green); font-weight: 700; letter-spacing: .4px; text-transform: uppercase; margin-bottom: 6px; }
-  .pinput input[type=number] { width: 100%; background: transparent; border: none; border-bottom: 1px solid var(--border); color: var(--text); font-size: 22px; font-weight: 700; font-family: 'Space Grotesk', sans-serif; padding: 2px 0 5px; outline: none; -moz-appearance: textfield; }
+  /* ── Inputs editáveis — seção de destaque ── */
+  .inputs-section-label {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 10px; font-weight: 700; color: var(--green);
+    text-transform: uppercase; letter-spacing: .6px;
+    margin-bottom: 8px;
+  }
+  .inputs-section-label::before {
+    content: '✏️'; font-size: 11px;
+  }
+  .inputs-section-label::after {
+    content: ''; flex: 1; height: 1px; background: var(--green-dim);
+  }
+
+  .all-inputs-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr) repeat(2, 1fr);
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  /* Primary inputs (number) */
+  .pinput {
+    background: var(--bg2);
+    border: 1.5px solid var(--green);
+    border-radius: var(--radius);
+    padding: 13px 14px;
+    position: relative;
+    box-shadow: 0 0 0 3px var(--green-glow);
+    transition: box-shadow .2s;
+  }
+  .pinput:focus-within {
+    box-shadow: 0 0 0 4px rgba(29,158,117,0.35);
+  }
+  .pinput .edit-badge {
+    position: absolute; top: 9px; right: 10px;
+    font-size: 9px; color: var(--green); font-weight: 700;
+    background: var(--green-dim); border-radius: 4px; padding: 1px 5px;
+    text-transform: uppercase; letter-spacing: .4px;
+  }
+  .pinput label { display: block; font-size: 10px; color: var(--green); font-weight: 700; letter-spacing: .4px; text-transform: uppercase; margin-bottom: 6px; padding-right: 36px; }
+  .pinput input[type=number] { width: 100%; background: transparent; border: none; border-bottom: 1.5px solid rgba(29,158,117,0.4); color: var(--text); font-size: 22px; font-weight: 700; font-family: 'Space Grotesk', sans-serif; padding: 2px 0 5px; outline: none; -moz-appearance: textfield; }
+  .pinput input:focus { border-bottom-color: var(--green); }
   .pinput input::-webkit-outer-spin-button, .pinput input::-webkit-inner-spin-button { -webkit-appearance: none; }
   .pinput .unit { font-size: 10px; color: var(--text3); margin-top: 5px; }
 
-  .toggle-row { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--text2); cursor: pointer; margin-bottom: 10px; user-select: none; }
-  .toggle-row:hover { color: var(--text); }
-  .arrow { font-size: 9px; transition: transform .2s; transform: rotate(90deg); }
-  .arrow.open { transform: rotate(90deg); }
-  .arrow.closed { transform: rotate(0deg); }
-  .sec-inputs { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 14px; margin-bottom: 12px; display: block; }
-  .ctrl { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
-  .ctrl:last-child { margin-bottom: 0; }
-  .clabel { font-size: 11px; color: var(--text2); min-width: 200px; }
-  .cval { font-size: 11px; font-weight: 600; color: var(--text); min-width: 48px; text-align: right; }
-  input[type=range] { flex: 1; accent-color: var(--green); height: 3px; cursor: pointer; }
+  /* Slider inputs — same visual weight as pinput */
+  .slider-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+    margin-bottom: 14px;
+  }
+  .sinput {
+    background: var(--bg2);
+    border: 1.5px solid var(--green);
+    border-radius: var(--radius);
+    padding: 13px 14px;
+    position: relative;
+    box-shadow: 0 0 0 3px var(--green-glow);
+  }
+  .sinput .edit-badge {
+    position: absolute; top: 9px; right: 10px;
+    font-size: 9px; color: var(--green); font-weight: 700;
+    background: var(--green-dim); border-radius: 4px; padding: 1px 5px;
+    text-transform: uppercase; letter-spacing: .4px;
+  }
+  .sinput label { display: block; font-size: 10px; color: var(--green); font-weight: 700; letter-spacing: .4px; text-transform: uppercase; margin-bottom: 8px; padding-right: 40px; }
+  .sinput-row { display: flex; align-items: center; gap: 10px; }
+  .sinput input[type=range] { flex: 1; accent-color: var(--green); height: 4px; cursor: pointer; }
+  .sinput .sval { font-size: 22px; font-weight: 700; color: var(--text); min-width: 48px; text-align: right; line-height: 1; }
+  .sinput .unit { font-size: 10px; color: var(--text3); margin-top: 6px; }
 
   .cards { display: grid; grid-template-columns: repeat(4,1fr); gap: 9px; margin-bottom: 14px; }
   .card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 13px; }
@@ -58,8 +112,8 @@
   .card.hi .cv { color: var(--green); }
   .card .cs { font-size: 10px; color: var(--text3); margin-top: 4px; }
 
-  .charts { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  .chart-box { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 13px 14px; }
+  .charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
+  .chart-box { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 13px 14px; min-width: 0; overflow: hidden; }
   .chart-box h3 { font-size: 10px; color: var(--text2); text-transform: uppercase; letter-spacing: .4px; margin-bottom: 10px; font-weight: 600; }
   .chart-wrap { position: relative; width: 100%; height: 160px; }
 
@@ -85,11 +139,17 @@
   .highlight-row td { background: var(--green-dim); }
   .warn { background: rgba(229,62,62,0.08); border: 1px solid rgba(229,62,62,0.25); border-radius: 7px; padding: 8px 12px; font-size: 11px; color: #fc8181; margin-top: 10px; line-height: 1.6; }
 
-  @media (max-width: 620px) {
-    body { padding: 14px; }
-    .primary-grid { grid-template-columns: 1fr; }
+  @media (max-width: 760px) {
+    .all-inputs-grid { grid-template-columns: 1fr 1fr; }
     .cards { grid-template-columns: repeat(2,1fr); }
-    .charts { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 560px) {
+    body { padding: 14px; }
+    .all-inputs-grid { grid-template-columns: 1fr; }
+    .slider-grid { grid-template-columns: 1fr; }
+    .cards { grid-template-columns: repeat(2,1fr); }
+    .header-left h1 { font-size: 13px; }
+    .badge-live { display: none; }
   }
 </style>
 </head>
@@ -111,38 +171,46 @@
 <!-- TAB PAINEL -->
 <div class="tab-content active" id="tab-painel">
 
-  <div class="primary-grid">
+  <div class="inputs-section-label">Parâmetros editáveis — preencha com os dados do YouTube AI</div>
+
+  <!-- Primary inputs -->
+  <div class="all-inputs-grid">
     <div class="pinput">
+      <span class="edit-badge">editar</span>
       <label>Views/semana por vídeo</label>
       <input type="number" id="svpv" value="440" min="10" max="5000" step="10">
       <div class="unit">↑ Mediana (Ciclo 7 Dias) — do YouTube AI</div>
     </div>
     <div class="pinput">
+      <span class="edit-badge">editar</span>
       <label>RPM estabilizado — USD/mil</label>
       <input type="number" id="rpm" value="2.59" min="0.10" max="15" step="0.01">
       <div class="unit">↑ RPM Real Estabilizado — do YouTube AI</div>
     </div>
     <div class="pinput">
+      <span class="edit-badge">editar</span>
       <label>Câmbio USD → BRL</label>
       <input type="number" id="fx" value="5.00" min="3" max="10" step="0.05">
       <div class="unit">↑ Cotação atual</div>
     </div>
+    <div class="pinput">
+      <span class="edit-badge">editar</span>
+      <label>Vídeos longos (+40 min) no canal hoje</label>
+      <input type="number" id="cur" value="26" min="0" max="99999" step="1">
+      <div class="unit">↑ Total atual de vídeos públicos — do YouTube AI</div>
+    </div>
   </div>
 
-  <div class="toggle-row" onclick="toggleSec()">
-    <span class="arrow" id="arrow">▶</span>
-    Parâmetros do canal — altere só se mudar o ritmo de publicação
-  </div>
-  <div class="sec-inputs" id="sec-block">
-    <div class="ctrl">
-      <span class="clabel">Vídeos longos (+40 min) no canal hoje</span>
-      <input type="range" id="cur" min="1" max="200" value="26" step="1">
-      <span class="cval" id="cur-out">26</span>
-    </div>
-    <div class="ctrl">
-      <span class="clabel">Novos vídeos longos por mês</span>
-      <input type="range" id="nvm" min="1" max="30" value="10" step="1">
-      <span class="cval" id="nvm-out">10</span>
+  <!-- Slider input -->
+  <div style="margin-bottom:14px;">
+    <div class="sinput">
+      <span class="edit-badge">editar</span>
+      <label>Novos vídeos longos por mês</label>
+      <div class="sinput-row">
+        <input type="range" id="nvm" min="1" max="30" value="15" step="1">
+        <span class="sval" id="nvm-out">15</span>
+      </div>
+      <div class="unit">Ritmo de publicação mensal projetado</div>
     </div>
   </div>
 
@@ -166,18 +234,21 @@
 <div class="tab-content" id="tab-instrucoes">
   <div class="prompt-box">
     <h3>🤖 Passo 1 — Rode este prompt no YouTube Studio AI</h3>
-    <p>Abra o <strong>YouTube Studio</strong> do seu canal, clique no ícone de IA (Gemini) e cole o prompt abaixo.</p>
-    <div class="prompt-text" id="promptText">Atue como meu analista financeiro. Primeiro, utilize suas ferramentas de Analytics para extrair os dados reais de receita e views dos últimos 28 dias e a lista de vídeos de +40 min dos últimos 90 dias. Em seguida, utilize o Interpretador de Python para processar os seguintes cálculos:
+    <p>Abra o <strong>YouTube Studio</strong> do seu canal, clique no ícone de IA (Gemini) e cole o prompt abaixo. O AI irá extrair automaticamente os dados do Analytics e calcular os valores que você precisa inserir no painel.</p>
+    <div class="prompt-text" id="promptText">Atue como meu analista financeiro. Primeiro, utilize suas ferramentas de Analytics para extrair os dados reais de receita e views dos últimos 28 dias e a lista de vídeos de +40 min. Em seguida, utilize o Interpretador de Python para processar os seguintes cálculos:
 
 Protocolo de Estabilidade Rigoroso:
 
-RPM Real Diário (Fixo): Com a receita/views diários, calcule o RPM de cada dia individualmente. Ordene a lista e remova obrigatoriamente o maior e o menor valor. A média do restante é o RPM Real Estabilizado.
+RPM Real Diário (Fixo): Com a receita/views diários (desconsidere o período não monetizado), calcule o RPM de cada dia individualmente. Ordene a lista e remova obrigatoriamente o maior e o menor valor. A média do restante é o RPM Real Estabilizado.
 
-Normalização de Ativos (Base 28d): Selecione os vídeos de +40 min (últimos 90 dias). Divida o total de views de 28 dias de cada vídeo por 4. Calcule a Mediana desta lista resultante. Este valor é a sua Média de Views (Ciclo 7 Dias).
+Normalização de Ativos (Base 28d): Selecione apenas vídeos públicos de +40 min. Divida o total de views de 28 dias de cada vídeo por 4. Calcule a Mediana desta lista resultante. Este valor é a sua Média de Views (Ciclo 7 Dias).
 
 Cálculo de Projeção: [Mediana] * ([RPM Real Estabilizado] / 1000).
 
-ENTREGA: Tabela comparando Média (com ruído) vs Mediana (Previsível) e Resumo Executivo destacando em negrito o RPM Real Estabilizado e a Média de Views (Ciclo 7 Dias). Também informe em negrito quantos vídeos longos com mais de 40 minutos o canal tem hoje.
+ENTREGA: Tabela comparando Média (com ruído) vs Mediana (Previsível). Depois de fornecer uma análise dos números encontrados e da situação atual do canal, apresente por último uma tabela com os seguintes valores com os números destacados em negrito:
+Views/semana por vídeo
+RPM estabilizado — USD/mil
+Vídeos públicos (+40 min) no canal hoje
 <button class="copy-btn" onclick="copyPrompt()" id="copyBtn">Copiar</button></div>
     <div class="warn">⚠️ Requer o YouTube Studio com IA (Gemini) ativado no canal.</div>
   </div>
@@ -186,28 +257,22 @@ ENTREGA: Tabela comparando Média (com ruído) vs Mediana (Previsível) e Resumo
     <h3>📥 Passo 2 — Transfira os resultados para o painel</h3>
     <div class="step">
       <div class="step-num">1</div>
-      <div class="step-text">O YouTube AI entrega uma tabela como esta. Localize os dois valores em negrito:</div>
+      <div class="step-text">Ao final da resposta, o YouTube AI entrega uma tabela resumo com os <strong>3 valores que você precisa inserir no painel</strong>. Localize-os e copie cada um:</div>
     </div>
+
+    <p style="font-size:10px; color:var(--text3); margin: 8px 0 4px; font-style: italic;">⬇ Exemplo ilustrativo — seus números serão diferentes</p>
     <table class="output-table">
-      <thead><tr><th>Métrica</th><th>Com ruído (Média)</th><th>Previsível (Mediana)</th></tr></thead>
+      <thead><tr><th>Campo do painel</th><th>Valor entregue pelo AI</th></tr></thead>
       <tbody>
-        <tr><td>Views/semana por vídeo</td><td>512</td><td><strong>440</strong></td></tr>
-        <tr class="highlight-row"><td><strong>RPM Real Estabilizado</strong></td><td>—</td><td><strong>$2,59</strong></td></tr>
-        <tr class="highlight-row"><td><strong>Média de Views (Ciclo 7 Dias)</strong></td><td>—</td><td><strong>440</strong></td></tr>
+        <tr class="highlight-row"><td><strong>Views/semana por vídeo</strong></td><td><strong>300</strong></td></tr>
+        <tr class="highlight-row"><td><strong>RPM estabilizado — USD/mil</strong></td><td><strong>$4,00</strong></td></tr>
+        <tr class="highlight-row"><td><strong>Vídeos públicos (+40 min) no canal hoje</strong></td><td><strong>25</strong></td></tr>
       </tbody>
     </table>
     <br>
     <div class="step">
       <div class="step-num">2</div>
-      <div class="step-text">Volte para a aba <strong>Painel</strong> e insira os dois valores + câmbio atual. Os meses ajustam automaticamente com base na data de hoje.</div>
-    </div>
-    <div class="step">
-      <div class="step-num">3</div>
-      <div class="step-text">Abra <strong>"Parâmetros do canal"</strong> e confirme o número atual de vídeos longos e o ritmo de publicação. Só muda se você alterar a cadência.</div>
-    </div>
-    <div class="step">
-      <div class="step-num">4</div>
-      <div class="step-text"><strong>Recomendação:</strong> repita a cada 2 semanas para manter as projeções calibradas.</div>
+      <div class="step-text">Volte para a aba <strong>Painel</strong> e preencha os campos destacados em verde com esses valores. Informe também o <strong>Câmbio USD → BRL</strong> atual e ajuste o slider de <strong>Novos vídeos por mês</strong> conforme seu ritmo de publicação. Os gráficos atualizam automaticamente.</div>
     </div>
   </div>
 
@@ -267,18 +332,14 @@ function switchTab(id) {
   document.querySelectorAll('.tab-content').forEach(c => c.classList.toggle('active', c.id === 'tab-'+id));
 }
 
-function toggleSec() {
-  const b = document.getElementById('sec-block');
-  const a = document.getElementById('arrow');
-  const open = b.style.display !== 'none' && b.style.display !== '';
-  b.style.display = open ? 'none' : 'block';
-  a.classList.toggle('closed', open);
-}
-
 function copyPrompt() {
-  const text = document.getElementById('promptText').innerText.replace('Copiar','').trim();
+  const el = document.getElementById('promptText');
+  const btn = document.getElementById('copyBtn');
+  // Get text excluding the button text
+  let text = '';
+  el.childNodes.forEach(node => { if (node.nodeType === Node.TEXT_NODE) text += node.textContent; });
+  text = text.trim();
   navigator.clipboard.writeText(text).then(() => {
-    const btn = document.getElementById('copyBtn');
     btn.textContent = '✓ Copiado'; btn.classList.add('copied');
     setTimeout(() => { btn.textContent = 'Copiar'; btn.classList.remove('copied'); }, 2000);
   });
@@ -290,9 +351,8 @@ function calc() {
   const rpm  = parseFloat(document.getElementById('rpm').value) || 2.59;
   const fx   = parseFloat(document.getElementById('fx').value) || 5.00;
   const cur  = parseInt(document.getElementById('cur').value) || 26;
-  const nvm  = parseInt(document.getElementById('nvm').value) || 10;
+  const nvm  = parseInt(document.getElementById('nvm').value) || 15;
 
-  document.getElementById('cur-out').textContent = cur;
   document.getElementById('nvm-out').textContent = nvm;
 
   let vids = cur, cumR = 0, prev = null;
@@ -332,8 +392,8 @@ function calc() {
 }
 
 calc();
-['svpv','rpm','fx'].forEach(id => document.getElementById(id).addEventListener('input', calc));
-['cur','nvm'].forEach(id => document.getElementById(id).addEventListener('input', calc));
+['svpv','rpm','fx','cur'].forEach(id => document.getElementById(id).addEventListener('input', calc));
+['nvm'].forEach(id => document.getElementById(id).addEventListener('input', calc));
 </script>
 </body>
 </html>
